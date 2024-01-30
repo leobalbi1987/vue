@@ -1,34 +1,50 @@
 <template>
-  <div>
+
+<div class="bg-gray-900 text-white p-4 m-1">
+
     
-    <h1>Select Music App</h1>
+  <p class="text-xl font-bold mb-4 text-green-400 bg-opacity-75 flex items-center justify-center h-16"> Music List </p>
 
-    <form @submit.prevent="addSelectedMusic">
+   
+  <form @submit.prevent="addSelectedMusic" class="p-4 md:w-1/2 lg:w-1/3 xl:w-1/4 mx-auto">
 
-      <label>Musica	: 
-        <input v-model="newMusic.title" list="titleSuggestions" @input="suggestTitles" required />
-      </label>
-      <datalist id="titleSuggestions">
-        <option v-for="suggestion in titleSuggestions" :key="suggestion" :value="suggestion"></option>
-      </datalist>
+<label class="block mb-2">Musica:
+  <input v-model="newMusic.title" list="titleSuggestions" class="bg-gray-800 text-white p-2 rounded-md w-full" @input="suggestTitles" required />
+</label>
+<datalist id="titleSuggestions">
+  <option v-for="suggestion in titleSuggestions" :key="suggestion" :value="suggestion"></option>
+</datalist>
 
-      <label>Artista: 
-        <input v-model="newMusic.artist" list="artistSuggestions" @input="suggestArtists" required />
-      </label>
+<label class="block mb-2">Artista:
+  <input v-model="newMusic.artist" list="artistSuggestions" class="bg-gray-800 text-white p-2 rounded-md w-full" @input="suggestArtists" required />
+</label>
+<datalist id="artistSuggestions">
+  <option v-for="suggestion in artistSuggestions" :key="suggestion" :value="suggestion"></option>
+</datalist>
 
-      <datalist id="artistSuggestions">
-        <option v-for="suggestion in artistSuggestions" :key="suggestion" :value="suggestion"></option>
-      </datalist>
+<button
+  type="submit"
+  class="bg-green-500 p-2 m-2 hover:bg-green-400 text-white rounded-md w-full"
+>
+  Add List
+</button>
 
-      <label>Frequency: 
-        <input v-model="newMusic.frequency" required />
-      </label>
-      <button type="submit">Add List</button>
-      <!-- <button type="submit">Cadastrar nova Musica</button> -->
-      <button type="button" @click="addMusic">Cadastrar nova Musica</button>
+<button
+  type="button"
+  @click="addMusic"
+  class="bg-green-500 p-2 m-2 hover:bg-green-400 text-white rounded-md cursor-pointer w-full"
+>
+  Cadastrar nova Musica
+</button>
+<button
+        type="button"
+        @click="removeLastSelectedMusic"
+        class="bg-red-500 p-2 m-2 hover:bg-red-400 text-white rounded-md cursor-pointer w-full"
+      >
+        Remover Última Música
+      </button>
 
-
-    </form>
+</form>
 
     <!-- <label>Selecionadas:  
       <select v-model="selectedMusic" @change="selectMusic">
@@ -39,35 +55,25 @@
       <p v-if="selectedMusic"> {{ selectedMusic.title }}Selected Music:</p>
     </label> -->
 
-     <!-- <table border="1">
-      <th colspan="3">Escolhas Recentes</th>
-      <tr>
-        <td > Musica </td>
-        <td>Artista</td>
-        <td>Data</td>
-      </tr>
-      <tr  v-for="music in musics" :key="music._id">
-        <td> {{ music.title }}</td>
-        <td> {{ music.artist }}</td>
-        <td>{{ formatarData(music.date) }}</td>
-      </tr>
-    </table>  -->
-
-
-    <table border="1">
-      <th colspan="3">Escolhas Recentes</th>
-      <tr>
-        <td > Musica </td>
-        <td>Artista</td>
-        <td>Data</td>
-      </tr>
-      <tr v-for="music in selectedMusic" :key="music._id">
-        <td> {{ music.title }}</td>
-        <td> {{ music.artist }}</td>
-        <td>{{ formatarData(music.date) }}</td>
-      </tr>
-    </table> 
   </div>
+
+  <div class="grid grid-cols-3 gap-4">
+  <div class="col-span-3">
+    <h1 class="text-xl font-bold mb-4 text-center p-1 mt-2">Escolhas Recentes</h1>
+  </div>
+  <div class="col-span-3">
+    <div class="grid grid-cols-3 border-b-2 border-gray-500 mb-2">
+      <div class="col-span-1 border-r-2 border-gray-500 p-2 ">Musica</div>
+      <div class="col-span-1 border-r-2 border-gray-500 p-2">Artista</div>
+      <div class="col-span-1 p-2">Data</div>
+    </div>
+    <div v-for="music in selectedMusic" :key="music._id" class="grid grid-cols-3 border-b-2 border-gray-500">
+      <div class="col-span-1 border-r-2 border-gray-500 p-2">{{ music.title }}</div>
+      <div class="col-span-1 border-r-2 border-gray-500 p-2">{{ music.artist }}</div>
+      <div class="col-span-1 p-2">{{ formatarData(music.date) }}</div>
+    </div>
+  </div>
+</div>
 </template>
 
 <script>
@@ -125,6 +131,8 @@ export default {
 
 
 
+
+
     async getMusics() {
       try {
         const response = await this.$axios.get('/api/getMusics');
@@ -143,6 +151,17 @@ export default {
         console.error('Erro ao buscar músicas na tabela selectedMusic:', err);
       }
     },
+
+    async removeLastSelectedMusic() {
+  try {
+    const response = await this.$axios.delete('/api/removeLastSelectedMusic');
+    console.log('Resposta do servidor:', response.data);
+    this.getSelectedMusics();
+  } catch (error) {
+    console.error('Erro ao remover a última música:', error.response ? error.response.data.error : error.message);
+  }
+},
+
 
     // Este método recebe uma string de data como parâmetro e a formata para um formato específico.
 

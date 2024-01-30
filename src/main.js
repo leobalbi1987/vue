@@ -1,6 +1,9 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import axios from 'axios';
+// import 'src/styles/main.css';
+import './output.css';
+
 
 const app = createApp(App);
 const instance = axios.create({

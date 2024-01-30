@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-// const knex = require('knex');
+const knex = require('knex');
 
 const app = express();
 const port = 3000;
@@ -22,16 +22,16 @@ const connection = mysql.createConnection({
 });
 
 // Definir a tabela no MySQL
-// const db = knex({
-//   client: 'mysql2',
-//   connection: {
-//     host: 'localhost',
-//     user: 'root',
-//     password: 'root',
-//     database: 'music_app',
+const db = knex({
+  client: 'mysql2',
+  connection: {
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'music_app',
     
-//   },
-// });
+  },
+});
 
 
         // banco de dados
@@ -141,9 +141,29 @@ app.get('/api/getSelectedMusics', async (req, res) => {
     res.status(500).send(err);
   }
 });
+
+
+app.delete('/api/removeLastSelectedMusic', async (req, res) => {
+  try {
+    // Obter a última música da tabela selectedMusic
+    const lastSelectedMusic = await db('selectedMusic').orderBy('date', 'desc').first();
+
+    if (!lastSelectedMusic) {
+      return res.status(404).send({ error: 'Nenhuma música encontrada para remover' });
+    }
+
+    // Remover a última música da tabela selectedMusic
+    await db('selectedMusic').where('id', lastSelectedMusic.id).del();
+
+    console.log('Última música removida do MySQL:', lastSelectedMusic);
+    res.status(200).send({ message: 'Última música removida com sucesso' });
+  } catch (error) {
+    console.error('Erro ao remover a última música:', error);
+    res.status(500).send({ error: 'Erro ao remover a última música' });
+  }
+});
+
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store');
   next();
 });
-
-
